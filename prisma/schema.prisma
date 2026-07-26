@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  password  String
+  avatar    String?
+  bio       String?
+  role      String     @default("user") // user, therapist, admin
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+  followers UserFollow[] @relation("following")
+  following UserFollow[] @relation("followers")
+  enrollments Enrollment[]
+  communities CommunityMember[]
+}
+
+model UserFollow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("followers", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Post {
+  id          String     @id @default(cuid())
+  content     String
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  workbookId  String?
+  workbook    Workbook?  @relation(fields: [workbookId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  comments    Comment[]
+  likes       Like[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  likes     Like[]
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+}
+
+model Workbook {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  creatorId   String
+  creator     User?      @relation(fields: [creatorId], references: [id])
+  image       String?
+  category    String
+  sessions    Int
+  duration    String
+  rating      Float      @default(0)
+  tags        String[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  posts       Post[]
+  enrollments Enrollment[]
+  worksheets  Worksheet[]
+  resources   Resource[]
+}
+
+model Enrollment {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workbookId  String
+  workbook    Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  progress    Int      @default(0) // percentage 0-100
+  status      String   @default("in_progress") // in_progress, completed, paused
+  enrolledAt  DateTime @default(now())
+  completedAt DateTime?
+
+  @@unique([userId, workbookId])
+}
+
+model Worksheet {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  content     String   @db.Text
+  workbookId  String
+  workbook    Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  type        String   // pdf, video, article, link
+  url         String?
+  content     String?  @db.Text
+  workbookId  String
+  workbook    Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Community {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String
+  icon        String?
+  category    String
+  members     CommunityMember[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model CommunityMember {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime @default(now())
+
+  @@unique([userId, communityId])
+}
