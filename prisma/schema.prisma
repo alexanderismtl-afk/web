@@ -11,23 +11,31 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  name      String
-  password  String
-  avatar    String?
-  bio       String?
-  role      String     @default("user") // user, therapist, admin
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id                     String     @id @default(cuid())
+  email                  String     @unique
+  name                   String
+  password               String
+  avatar                 String?
+  bio                    String?
+  preferredName          String?
+  pronouns               String?
+  language               String     @default("en")
+  accessibilityPreference String?   @default("standard")
+  privacyMode            String     @default("private")
+  onboardingComplete     Boolean    @default(false)
+  onboardingSelections   String?
+  role                   String     @default("user") // user, therapist, admin
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
 
-  posts     Post[]
-  comments  Comment[]
-  likes     Like[]
-  followers UserFollow[] @relation("following")
-  following UserFollow[] @relation("followers")
-  enrollments Enrollment[]
-  communities CommunityMember[]
+  posts                  Post[]
+  comments               Comment[]
+  likes                  Like[]
+  followers              UserFollow[] @relation("following")
+  following              UserFollow[] @relation("followers")
+  enrollments            Enrollment[]
+  communities            CommunityMember[]
+  workbooks              Workbook[]
 }
 
 model UserFollow {
@@ -87,7 +95,7 @@ model Workbook {
   title       String
   description String
   creatorId   String
-  creator     User?      @relation(fields: [creatorId], references: [id])
+  creator     User?      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   image       String?
   category    String
   sessions    Int

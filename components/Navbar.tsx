@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, MessageCircle, Bell, User } from 'lucide-react'
+import { Search, MessageCircle, Bell, User, DoorOpen } from 'lucide-react'
 
 export default function Navbar() {
   return (
@@ -33,6 +33,9 @@ export default function Navbar() {
           </button>
           <button className="hover:bg-secondary p-2 rounded-full transition">
             <Bell size={24} className="text-gray-600" />
+          </button>
+          <button className="hover:bg-secondary p-2 rounded-full transition" aria-label="Quick exit">
+            <DoorOpen size={24} className="text-gray-600" />
           </button>
           <button className="hover:bg-secondary p-2 rounded-full transition">
             <User size={24} className="text-gray-600" />

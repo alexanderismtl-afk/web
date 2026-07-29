@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import AuthGate from '@/components/AuthGate'
+import PreferenceManager from '@/components/PreferenceManager'
 
 export const metadata: Metadata = {
   title: 'TherapyHub - Mental Health & Wellbeing Community',
@@ -13,7 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <PreferenceManager />
+        <AuthGate>{children}</AuthGate>
+      </body>
     </html>
   )
 }

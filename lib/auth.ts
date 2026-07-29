@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import bcryptjs from 'bcryptjs'
 
 const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET || 'your-secret-key'
-const JWT_EXPIRY = process.env.NEXT_PUBLIC_JWT_EXPIRY || '7d'
+const JWT_EXPIRY = process.env.NEXT_PUBLIC_JWT_EXPIRY || '7d' as jwt.SignOptions['expiresIn']
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = await bcryptjs.genSalt(10)
@@ -17,7 +17,7 @@ export async function comparePassword(
 }
 
 export function generateToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRY })
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRY as jwt.SignOptions['expiresIn'] })
 }
 
 export function verifyToken(token: string): { userId: string } | null {
